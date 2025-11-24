@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tkintertest as tktest
 
+import globalvalues as gv
+import save_to_excel as ste
+import math_plot_graph as mpg
+
 
 # ============================================================
 # LOAD DATA
@@ -75,32 +79,6 @@ def compute_feature_importance(model, feature_names):
 
 
 # ============================================================
-# SAVE RESULTS TO EXCEL
-# ============================================================
-def save_results(df_results, threshold):
-    filename = f"SOH_Predictions_{threshold}_threshold.xlsx"
-    df_results.to_excel(filename, index=False)
-    return filename
-
-
-# ============================================================
-# PLOT PREDICTIONS
-# ============================================================
-def plot_predictions(y_test, y_pred):
-    plt.figure(figsize=(10, 6))
-    plt.scatter(y_test, y_pred, alpha=0.6)
-    plt.plot([y_test.min(), y_test.max()],
-             [y_test.min(), y_test.max()],
-             linestyle='--')
-    plt.title("Actual vs Predicted SOH")
-    plt.xlabel("Actual SOH")
-    plt.ylabel("Predicted SOH")
-    plt.grid()
-    plt.savefig("actual_vs_predicted.png")
-    plt.show()
-
-
-# ============================================================
 # FILL MISSING FEATURES USING TRAINING MEANS
 # ============================================================
 def prepare_input_mean(df_partial, expected_features, X_train):
@@ -145,31 +123,9 @@ def hybrid_predict(df_partial, expected_features, X_train, lin_reg, rf):
 
 
 # ============================================================
-# USER INPUT HANDLING
-# ============================================================
-def get_partial_user_input(expected_features):
-    print("\nEnter ANY subset of features (press ENTER to skip):\n")
-    user_vals = {}
-
-    for feature in expected_features:
-        val = input(f"{feature}: ").strip()
-        if val == "":
-            continue
-        try:
-            user_vals[feature] = float(val)
-        except ValueError:
-            print("Invalid number, skipping.")
-
-    if len(user_vals) == 0:
-        return None
-
-    return pd.DataFrame([user_vals])
-
-
-# ============================================================
 # MAIN WORKFLOW
 # ============================================================
-def main():
+def train():
     # Load and split data
     df, X, y = load_data("PulseBatDataset.xlsx")
     X_train, X_test, y_train, y_test = train_test_split(
@@ -188,7 +144,8 @@ def main():
         print(f"{name}: {value:.4f}")
 
     # User threshold
-    threshold = float(input("\nEnter SOH threshold (default=0.6): ") or 0.6)
+    # threshold = float(input("\nEnter SOH threshold (default=0.6): ") or 0.6)
+    threshold = gv.SOH
 
     # Classification for evaluation
     battery_class = ["Healthy" if s >= threshold else "Unhealthy"
@@ -208,20 +165,10 @@ def main():
     print("\nSample predictions:")
     print(df_results.head())
 
-    # Save results
-    excel_file = save_results(df_results, threshold)
-    print(f"\nResults saved to '{excel_file}'")
-
-    # Plot
-    plot_predictions(y_test, y_pred)
-
-    # Start Tkinter GUI for user input
-    tktest.startTkinter(
-        expected_features,
-        X_train,
-        lin_reg_model,
-        rf_model
-    )
+    gv.change_exp_features(expected_features)
+    gv.change_x_train(X_train)
+    gv.change_lin_reg_model(lin_reg_model)
+    gv.change_rf_model(rf_model)
 
 
 r'''
@@ -246,4 +193,4 @@ or just deactivate
 '''
 # ENTRY POINT
 if __name__ == "__main__":
-    main()
+    train()

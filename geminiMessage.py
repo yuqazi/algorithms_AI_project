@@ -2,6 +2,8 @@ from google import genai
 from dotenv import load_dotenv
 import os
 
+import globalvalues as gv
+
 # Global persistent client and chat
 client = None
 chat = None
@@ -9,15 +11,15 @@ chat = None
 def start_gemini():
     global client, chat
 
-    load_dotenv()
-
-    # Create persistent client ONLY ONCE
-    client = genai.Client()
-
-    # Create persistent chat session ONLY ONCE
-    chat = client.chats.create(model="gemini-2.5-flash")
-
-    return client, chat
+    if(gv.KEY != ""):
+        client = genai.Client(api_key=gv.KEY)
+        chat = client.chats.create(model="gemini-2.5-flash")
+        return client, chat
+    else:
+        load_dotenv(override=True)
+        client = genai.Client()
+        chat = client.chats.create(model="gemini-2.5-flash")
+        return client, chat
 
 
 def gemini_response(userquestion, initialmessage=None):
