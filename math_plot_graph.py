@@ -24,9 +24,10 @@ def create_soh_plot(y_test, y_pred):
     plt.legend()
     plt.grid(True, linestyle=':', alpha=0.7)
     plt.tight_layout() # Adjust layout to prevent labels from overlapping
+    return plt
 
 # 2. Function to show the plot to the user
-def show_soh_plot():
+def show_soh_plot(plt):
     """
     Displays the currently active Matplotlib figure.
     """
@@ -34,7 +35,7 @@ def show_soh_plot():
     plt.show()
 
 # 3. Function to save the plot as a file with a custom name
-def save_soh_plot(filename="actual_vs_predicted_soh.png"):
+def save_soh_plot(plt, filename="actual_vs_predicted_soh.png"):
     """
     Opens a native system file save dialog for the user to select the
     location and filename, and saves the currently active Matplotlib figure.

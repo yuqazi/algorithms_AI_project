@@ -173,6 +173,7 @@ def train():
     gv.change_x_train(X_train)
     gv.change_lin_reg_model(lin_reg_model)
     gv.change_rf_model(rf_model)
+    gv.training_results(df_results)
 
 
 r'''

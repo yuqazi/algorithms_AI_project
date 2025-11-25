@@ -9,6 +9,8 @@ import tkinter_helpers as tkh
 import globalvalues as gv
 import startup as startup_module
 import change_soh_threshold as csoth
+import math_plot_graph as mpg
+import save_to_excel as ste
 
 def run_pred(textbox, entries):
     Uvalues = {}
@@ -46,13 +48,15 @@ def change_soh(master, textbox, label_text):
     initalizing_print(textbox)
 
 def open_graph():
-    print("Placeholder for Open Graph")
+    plt = mpg.create_soh_plot(gv.Y_TEST, gv.Y_PRED)
+    mpg.show_soh_plot(plt)
 
 def save_graph():
-    print("Placeholder for Save Graph")
+    plt = mpg.create_soh_plot(gv.Y_TEST, gv.Y_PRED)
+    mpg.save_soh_plot(plt)
 
 def save_excel_sheet():
-    print("Placeholder for Save Excel Sheet")
+    ste.save_results(gv.df_results, gv.SOH)
 
 def save_runs(textbox):
     content = textbox.get("1.0", "end-1c")
