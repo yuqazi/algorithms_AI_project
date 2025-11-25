@@ -25,7 +25,6 @@ def open_new_window(root, inputmessage, input_question_box):
         canvas.configure(scrollregion=canvas.bbox("all"))
     scroll_frame.bind("<Configure>", update_scroll)
 
-    # -------------- EVERYTHING CENTERED --------------
 
     # Wrapper that expands full width and centers children
     center_frame = tk.Frame(scroll_frame, bg="#222222")

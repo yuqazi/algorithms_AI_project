@@ -61,7 +61,9 @@ def startTkinter():
         prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
         print(f"\nPredicted SOH from UI Input: {prediction:.4f}")
         print("Battery Classification:", "Healthy" if prediction >= gv.SOH else "Unhealthy")
-        gemini_initial = "Based on the provided battery cell voltages ({}) our Data model got the predicted State of Health (SOH): {:.4f} which we consider {}. Please use this for the following question.".format(Uvalues, prediction, "Healthy" if prediction >= gv.SOH else "Unhealthy")
+        gemini_initial = "Respond only in plain, unformatted text. Do not use markdown, bolding, italics, headings, bullet points, or any other formatting characters.\n" \
+        " Based on the provided battery cell voltages ({}) our Data model got the predicted State of Health (SOH): {:.4f} which we consider {}." \
+        " Please use this for the following question.".format(Uvalues, prediction, "Healthy" if prediction >= gv.SOH else "Unhealthy")
         #prompt gemini with question and take response
         gemini_reply = gem.gemini_response(question, gemini_initial)
         gw.open_new_window(root ,gemini_reply, input_question)

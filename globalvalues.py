@@ -6,6 +6,7 @@ RF_MODEL = None
 
 KEY = ""
 INITALIZING_TEXT = ""
+MODEL_CHOICE = ""
 
 def change_soh(new_soh):
     global SOH

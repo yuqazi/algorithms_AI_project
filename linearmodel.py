@@ -96,7 +96,7 @@ def choose_model(user_df, expected_features, lin_reg, rf, threshold=0.9):
     
     # If ANY NaN exists in user input → RandomForest handles missing values better
     if user_df.isna().any().any():
-        print("Choosing RandomForest (missing values found)")
+        gv.MODEL_CHOICE = "Choosing RandomForest (missing values detected)"
         return rf
 
     # Otherwise fall back to number of supplied features
@@ -104,10 +104,10 @@ def choose_model(user_df, expected_features, lin_reg, rf, threshold=0.9):
     total = len(expected_features)
 
     if supplied >= total * threshold:
-        print("Choosing LinearRegression (enough features supplied)")
+        gv.MODEL_CHOICE = "Choosing LinearRegression (enough features supplied)"
         return lin_reg
     else:
-        print("Choosing RandomForest (not enough features supplied)")
+        gv.MODEL_CHOICE = "Choosing RandomForest (not enough features supplied)"
         return rf
 
 
@@ -115,6 +115,7 @@ def choose_model(user_df, expected_features, lin_reg, rf, threshold=0.9):
 # HYBRID PREDICTION FUNCTION
 # ============================================================
 def hybrid_predict(df_partial, expected_features, X_train, lin_reg, rf):
+    pd.set_option('future.no_silent_downcasting', True)
     # Replace empty strings with NaN
     df_partial = df_partial.replace("", np.nan).infer_objects(copy=False)
     model = choose_model(df_partial, expected_features, lin_reg, rf)

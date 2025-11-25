@@ -8,6 +8,7 @@ import linearmodel as mod
 import tkinter_helpers as tkh
 import globalvalues as gv
 import startup as startup_module
+import change_soh_threshold as csoth
 
 def run_pred(textbox, entries):
     Uvalues = {}
@@ -18,24 +19,31 @@ def run_pred(textbox, entries):
     prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
     line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
     line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
+    line3 = gv.MODEL_CHOICE + "\n"
 
     textbox.configure(state='normal')
+    textbox.insert(tk.END, line3)
     textbox.insert(tk.END, line1)
-    textbox.insert(tk.END, line2)
+    textbox.insert(tk.END, line2 + "\n" + "-"*90 + "\n")
     textbox.see(tk.END)
     textbox.configure(state='disabled')
 
 def initalizing_print(textbox):
     textbox.configure(state='normal')
+    textbox.insert(tk.END, "-"*90 + "\n")
     textbox.insert(tk.END, gv.INITALIZING_TEXT + "\n")
     textbox.insert(tk.END, "Current SOH threshold: " + str(gv.SOH) + "\n")
-    textbox.insert(tk.END, "-"*75 + "\n")
-    textbox.insert(tk.END, "Press 'run' to run predictions with current values\n")
+    textbox.insert(tk.END, "-"*90 + "\n")
+    textbox.see(tk.END)
+    textbox.insert(tk.END, "Press 'Run' to run predictions with current U values\n")
+    textbox.insert(tk.END, "-"*90 + "\n")
     textbox.configure(state='disabled')
     gv.INITALIZING_TEXT = ""
 
-def change_soh(root):
-    print("Placeholder for Change SOH")
+def change_soh(master, textbox, label_text):
+    csoth.change_soh_start(master)
+    label_text.set(f"Results with SOH threshold: {gv.SOH}")
+    initalizing_print(textbox)
 
 def open_graph():
     print("Placeholder for Open Graph")
@@ -57,7 +65,6 @@ def save_runs(textbox):
                 ('All files', '*.*')
             ]
         }
-        
         # asksaveasfilename prompts the user and returns the chosen file path string.
         filepath = filedialog.asksaveasfilename(
             title="Save Text Content As",
@@ -121,14 +128,17 @@ def startTkinter():
     make_row(content_frame, ["U13", "U14", "U15", "U16", "U17", "U18"])
     make_row(content_frame, ["U19", "U20", "U21"])
 
+    label_m_text = tk.StringVar()
+    label_m_text.set(f"Results with SOH threshold: {gv.SOH}")
     # Results Label (packed to the left with anchor='w')
-    tk.Label(content_frame, text=f"Results with SOH threshold: {gv.SOH}", **label_style).pack(pady=(20, 10), anchor='w')
+    label_main = tk.Label(content_frame, textvariable=label_m_text, **label_style)
+    label_main.pack(pady=(20, 10), anchor='w')
 
     # Output Textbox (packed to the left with anchor='w')
     output_textbox = scrolledtext.ScrolledText(
         content_frame, 
         width=80, 
-        height=15, 
+        height=18, 
         bg="#333333", 
         fg="#FFFFFF", 
         insertbackground="#FFFFFF", 
@@ -138,6 +148,7 @@ def startTkinter():
     )
     output_textbox.pack(pady=10, padx=0, fill='x', anchor='w') 
     initalizing_print(output_textbox)
+    output_textbox.configure(state='disabled')
 
 
     button_column = tk.Frame(main_container, bg="#111111")
@@ -157,15 +168,15 @@ def startTkinter():
 
     tk.Button(
         button_column, 
-        text="Change SOH", 
-        command=lambda: change_soh(root),
+        text="Change SOH Threshold", 
+        command=lambda: change_soh(root, output_textbox, label_m_text),
         **button_style
     ).pack(pady=10)
 
     tk.Button(
         button_column, 
         text="Return to Startup", 
-        command=lambda: return_action(root),
+        command=lambda: return_action(),
         **button_style
     ).pack(pady=10)
 

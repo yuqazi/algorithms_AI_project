@@ -13,6 +13,6 @@ def center_window(root, width, height):
 
 label_style = {"bg": "#111111", "fg": "white", "font": ("Arial", 14)}
 text_style = {"bg": "#111111", "fg": "white", "font": ("Arial", 10)}
-button_style = {'width': 15, 'height': 2, 'bg': "#A6CEFC", 'fg': 'black', 'relief': 'flat', 'font': ('Helvetica', 10, 'italic')}
+button_style = {'width': 16, 'height': 2, 'bg': "#A6CEFC", 'fg': 'black', 'relief': 'flat', 'font': ('Helvetica', 10, 'italic')}
 entry_style = {"width": 10}
 entry_style_large = {"width": 50}
