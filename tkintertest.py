@@ -8,7 +8,6 @@ from tkinter import messagebox
 import startup as startup_module
 import geminiMessage as gem
 import linearmodel as mod
-import gemini_window as gw
 import tkinter_helpers as tkh
 import globalvalues as gv
 import change_soh_threshold as csoth
@@ -110,6 +109,34 @@ def save_runs(textbox):
         print(f"An error occurred during save operation: {e}")
         messagebox.showerror("Error", f"Failed to save content: {e}")
 
+
+def new_chat_session(textbox):
+    gv.CLIENT, gv.CHAT = gem.start_gemini()
+    textbox.configure(state='normal')
+    textbox.delete("1.0", tk.END)
+    messagebox.showwarning("New Chat Session", "New Gemini chat session started.")
+    initalizing_print(textbox)
+    textbox.see(tk.END)
+
+
+def add_placeholder(entry, placeholder):
+    entry.insert(0, placeholder)
+    entry.config(fg="grey")
+
+    def on_focus_in(event):
+        if entry.get() == placeholder:
+            entry.delete(0, "end")
+            entry.config(fg="black")  # text color when typing
+
+    def on_focus_out(event):
+        if entry.get() == "":
+            entry.insert(0, placeholder)
+            entry.config(fg="grey")
+
+    entry.bind("<FocusIn>", on_focus_in)
+    entry.bind("<FocusOut>", on_focus_out)
+
+
 def startTkinter():
     client, chat = gem.start_gemini()
 
@@ -192,6 +219,7 @@ def startTkinter():
 
     input_question = tk.Entry(large_frame, width=80)
     input_question.pack(ipady=10)
+    add_placeholder(input_question, "Enter your question for Gemini here...")
 
     def submit():
         Uvalues = {}
@@ -199,6 +227,9 @@ def startTkinter():
             Uvalues[key] = entries[key].get()
 
         question = input_question.get()
+        if question == "" or question == "Enter your question for Gemini here...":
+            messagebox.showwarning("Input Error", "Please enter a question for Gemini.")
+            return
         prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]),
                                         gv.EXP_FEATURES,
                                         gv.X_TRAIN,
@@ -299,6 +330,13 @@ def startTkinter():
         button_column, 
         text="Save Runs", 
         command=lambda: save_runs(output_textbox),
+        **button_style
+    ).pack(pady=10)
+
+    tk.Button(
+        button_column, 
+        text="New Chat Session", 
+        command=lambda: new_chat_session(output_textbox),
         **button_style
     ).pack(pady=10)
 
