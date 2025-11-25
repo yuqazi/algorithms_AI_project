@@ -5,6 +5,7 @@ LIN_REG_MODEL = None
 RF_MODEL = None
 
 KEY = ""
+INITALIZING_TEXT = ""
 
 def change_soh(new_soh):
     global SOH

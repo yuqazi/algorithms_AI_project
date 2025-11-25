@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
+from tkinter import filedialog
+from tkinter import messagebox
 import pandas as pd
 
 import linearmodel as mod
@@ -7,18 +9,74 @@ import tkinter_helpers as tkh
 import globalvalues as gv
 import startup as startup_module
 
-def submit(entries):
+def run_pred(textbox, entries):
     Uvalues = {}
     for key in entries:
         value = entries[key].get()
         Uvalues[key] = value
 
     prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
-    print(f"\nPredicted SOH from UI Input: {prediction:.4f}")
-    print("Battery Classification:", "Healthy" if prediction >= gv.SOH else "Unhealthy")
+    line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
+    line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
+
+    textbox.configure(state='normal')
+    textbox.insert(tk.END, line1)
+    textbox.insert(tk.END, line2)
+    textbox.see(tk.END)
+    textbox.configure(state='disabled')
+
+def initalizing_print(textbox):
+    textbox.configure(state='normal')
+    textbox.insert(tk.END, gv.INITALIZING_TEXT + "\n")
+    textbox.insert(tk.END, "Current SOH threshold: " + str(gv.SOH) + "\n")
+    textbox.insert(tk.END, "-"*75 + "\n")
+    textbox.insert(tk.END, "Press 'run' to run predictions with current values\n")
+    textbox.configure(state='disabled')
+    gv.INITALIZING_TEXT = ""
 
 def change_soh(root):
     print("Placeholder for Change SOH")
+
+def open_graph():
+    print("Placeholder for Open Graph")
+
+def save_graph():
+    print("Placeholder for Save Graph")
+
+def save_excel_sheet():
+    print("Placeholder for Save Excel Sheet")
+
+def save_runs(textbox):
+    content = textbox.get("1.0", "end-1c")
+    try:
+        # options for the save dialog
+        file_options = {
+            'defaultextension': '.txt',
+            'filetypes': [
+                ('Text files', '*.txt'),
+                ('All files', '*.*')
+            ]
+        }
+        
+        # asksaveasfilename prompts the user and returns the chosen file path string.
+        filepath = filedialog.asksaveasfilename(
+            title="Save Text Content As",
+            **file_options
+        )
+
+        # If a valid filepath is returned, write the content to that file.
+        if filepath:
+            with open(filepath, 'w', encoding='utf-8') as file:
+                file.write(content)
+            print(f"Content successfully saved to: {filepath}")
+            messagebox.showinfo("Success", f"Content saved to:\n{filepath}")
+        else:
+            print("Save operation cancelled by user.")
+    
+    # except block to catch any file operation errors.
+    except Exception as e:
+        print(f"An error occurred during save operation: {e}")
+        messagebox.showerror("Error", f"Failed to save content: {e}")
 
 def return_action(root):
     root.destroy()
@@ -26,42 +84,51 @@ def return_action(root):
 
 def startTkinter():
     root = tk.Tk()
-    root.title("Battery SOH Predictor")
+    root.title("Battery SOH Predictor (No AI)")
     root.configure(bg="#111111")
 
-    # Styling
+    # Store entry widgets
+    entries = {}
     label_style = tkh.label_style
     entry_style = tkh.entry_style
 
-    # Store entry widgets so we can retrieve their values
-    entries = {}
+    # --- Main Layout Container ---
+    # This frame holds the entire application content and uses a 1-row, 2-column grid.
+    main_container = tk.Frame(root, bg="#111111")
+    # Sticky 'w' ensures the whole container is left-justified in the root window.
+    main_container.grid(row=0, column=0, padx=20, pady=20, sticky="w") 
+
+    # --- Column 1: Input and Output Content (Left Justified) ---
+    content_frame = tk.Frame(main_container, bg="#111111")
+    # Sticky 'nw' anchors the content to the top-left of the cell.
+    content_frame.grid(row=0, column=0, sticky="nw", padx=(0, 30)) 
 
     def make_row(parent, labels):
         """Creates a row with label-entry pairs."""
         row_frame = tk.Frame(parent, bg="#111111")
         row_frame.pack(pady=10)
-
         for text in labels:
             cell = tk.Frame(row_frame, bg="#111111")
             cell.pack(side="left", padx=15)
-
             tk.Label(cell, text=text, **label_style).pack()
             e = tk.Entry(cell, **entry_style)
             e.pack()
             entries[text] = e   # store reference
 
-    make_row(root, ["U1", "U2", "U3", "U4", "U5", "U6"])
-    make_row(root, ["U7", "U8", "U9", "U10", "U11", "U12"])
-    make_row(root, ["U13", "U14", "U15", "U16", "U17", "U18"])
-    make_row(root, ["U19", "U20", "U21"])
+    # Input Rows go into the content_frame
+    make_row(content_frame, ["U1", "U2", "U3", "U4", "U5", "U6"])
+    make_row(content_frame, ["U7", "U8", "U9", "U10", "U11", "U12"])
+    make_row(content_frame, ["U13", "U14", "U15", "U16", "U17", "U18"])
+    make_row(content_frame, ["U19", "U20", "U21"])
 
-    # --- Results Label ---
-    tk.Label(root, text="Results with SOH threshold: " + str(gv.SOH), **label_style).pack(pady=15)
+    # Results Label (packed to the left with anchor='w')
+    tk.Label(content_frame, text=f"Results with SOH threshold: {gv.SOH}", **label_style).pack(pady=(20, 10), anchor='w')
 
+    # Output Textbox (packed to the left with anchor='w')
     output_textbox = scrolledtext.ScrolledText(
-        root, 
+        content_frame, 
         width=80, 
-        height=12, # Set a visible height
+        height=15, 
         bg="#333333", 
         fg="#FFFFFF", 
         insertbackground="#FFFFFF", 
@@ -69,25 +136,66 @@ def startTkinter():
         relief="flat",
         font=('Helvetica', 10)
     )
+    output_textbox.pack(pady=10, padx=0, fill='x', anchor='w') 
+    initalizing_print(output_textbox)
 
-    output_textbox.pack(pady=10, padx=20)
-    output_textbox.insert(tk.END, "Press 'Submit' to run prediction.")
 
-    # --- Button Frame for organization ---
-    button_frame = tk.Frame(root, bg="#111111")
-    button_frame.pack(pady=20)
+    button_column = tk.Frame(main_container, bg="#111111")
+    # Place the button column in the second column of the main_container grid.
+    # Sticky 'n' aligns buttons to the top of the cell.
+    button_column.grid(row=0, column=1, sticky="n", pady=10) 
 
-    # --- Submit Button ---
-    submit_btn = tk.Button(button_frame, text="Submit", width=15, command=lambda: submit(entries))
-    submit_btn.pack(side="left", padx=10)
+    # Consistent Button styling
+    button_style = tkh.button_style
 
-    # --- Change SOH Button ---
-    soh_btn = tk.Button(button_frame, text="Change SOH", width=15, command=lambda: change_soh(root))
-    soh_btn.pack(side="left", padx=10)
+    tk.Button(
+        button_column, 
+        text="Run", 
+        command=lambda: run_pred(output_textbox, entries),
+        **button_style
+    ).pack(pady=10)
 
-    # --- Return Button ---
-    return_btn = tk.Button(button_frame, text="Return", width=15, command=lambda: return_action(root))
-    return_btn.pack(side="left", padx=10)
+    tk.Button(
+        button_column, 
+        text="Change SOH", 
+        command=lambda: change_soh(root),
+        **button_style
+    ).pack(pady=10)
 
-    tkh.center_window(root, 800, 700)
+    tk.Button(
+        button_column, 
+        text="Return to Startup", 
+        command=lambda: return_action(root),
+        **button_style
+    ).pack(pady=10)
+
+    tk.Button(
+        button_column, 
+        text="Open Graph", 
+        command=lambda: open_graph(),
+        **button_style
+    ).pack(pady=10)
+
+    tk.Button(
+        button_column, 
+        text="Save Graph", 
+        command=lambda: save_graph(),
+        **button_style
+    ).pack(pady=10)
+
+    tk.Button(
+        button_column, 
+        text="Save Excel Sheet", 
+        command=lambda: save_excel_sheet(),
+        **button_style
+    ).pack(pady=10)
+
+    tk.Button(
+        button_column, 
+        text="Save Runs", 
+        command=lambda: save_runs(output_textbox),
+        **button_style
+    ).pack(pady=10)
+
+    tkh.center_window(root, 960, 750)
     root.mainloop()

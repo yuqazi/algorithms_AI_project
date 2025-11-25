@@ -139,9 +139,12 @@ def train():
     # Evaluate linear regression on full test set
     y_pred, metrics = evaluate_model(lin_reg_model, X_test, y_test)
 
-    print("\nModel Evaluation Metrics:")
+    gv.INITALIZING_TEXT += "\nModel Evaluation Metrics:"
+    parts = []
     for name, value in metrics.items():
-        print(f"{name}: {value:.4f}")
+        parts.append(f"{name}: {value:.4f}")
+        gv.INITALIZING_TEXT = "".join(parts)
+
 
     # User threshold
     # threshold = float(input("\nEnter SOH threshold (default=0.6): ") or 0.6)
@@ -159,11 +162,11 @@ def train():
 
     # Feature importance
     importance = compute_feature_importance(lin_reg_model, expected_features)
-    print("\nTop 5 Features by Coefficient Importance:")
-    print(importance.head().reset_index(drop=True))
+    gv.INITALIZING_TEXT += str("\nTop 5 Features by Coefficient Importance:")
+    gv.INITALIZING_TEXT += str(importance.head().reset_index(drop=True))
 
-    print("\nSample predictions:")
-    print(df_results.head())
+    gv.INITALIZING_TEXT += str("\nSample predictions:")
+    gv.INITALIZING_TEXT += str(df_results.head())
 
     gv.change_exp_features(expected_features)
     gv.change_x_train(X_train)

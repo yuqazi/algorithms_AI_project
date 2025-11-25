@@ -1,7 +1,22 @@
 import tkinter as tk
+from tkinter import messagebox
 
 import tkinter_helpers as tkh
 import globalvalues as gv
+
+def change_soh(new_soh, label_text, text_widget):
+    try:
+        if(float(new_soh) < 0 or float(new_soh) > 1):
+            tk.messagebox.showerror("Warning", "❌ SOH must be between 0 and 1.")
+            return
+        new_soh_value = float(new_soh)
+        gv.change_soh(new_soh_value)
+        tk.messagebox.showinfo("Success", f"✅ SOH threshold changed to {new_soh_value}.")
+        label_text.set(f"Current SOH Threshold: {gv.SOH}")
+    except ValueError:
+        text_widget.delete("0", "end")
+        tk.messagebox.showerror("Error", "❌ Invalid input. Please enter a numeric value.")
+
 #def change_soh_start():
 root = tk.Tk()
 root.title("Change SOH Threshold")
@@ -9,8 +24,13 @@ root.configure(bg="#111111")
 
 label_style = tkh.label_style
 entry_style = tkh.entry_style
+button_style = tkh.button_style
 
-tk.Label(root, text="Current SOH Threshold: " + str(gv.SOH), **label_style).pack(pady=10)
+label_text = tk.StringVar()
+label_text.set(f"Current SOH Threshold: {gv.SOH}")
+
+label = tk.Label(root, textvariable=label_text, **label_style)
+label.pack(pady=10)
 
 input_frame = tk.Frame(root, bg="#111111")
 input_frame.pack(pady=10)
@@ -22,7 +42,8 @@ soh_entry.grid(row=0, column=1, padx=5, pady=5)
 tk.submit_button = tk.Button(
     root,
     text="Submit",
-    command=lambda: gv.change_soh(float(soh_entry.get()))
+    command=lambda: change_soh(soh_entry.get(), label_text, soh_entry),
+    **button_style
 )
 tk.submit_button.pack(pady=15)
 
