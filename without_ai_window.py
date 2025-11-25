@@ -180,7 +180,7 @@ def startTkinter():
     tk.Button(
         button_column, 
         text="Return to Startup", 
-        command=lambda: return_action(),
+        command=lambda: return_action(root),
         **button_style
     ).pack(pady=10)
 
