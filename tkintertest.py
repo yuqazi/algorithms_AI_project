@@ -31,24 +31,6 @@ def gemini_output(textbox, gemini_reply, input_question):
     textbox.see(tk.END)
     textbox.configure(state='disabled')
 
-def run_pred(textbox, entries):
-    Uvalues = {}
-    for key in entries:
-        value = entries[key].get()
-        Uvalues[key] = value
-
-    prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
-    line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
-    line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
-    line3 = gv.MODEL_CHOICE + "\n"
-
-    textbox.configure(state='normal')
-    textbox.insert(tk.END,"\n" + "-"*90 + "\n")
-    textbox.insert(tk.END, line3)
-    textbox.insert(tk.END, line1)
-    textbox.insert(tk.END, line2 + "\n" + "-"*90 + "\n")
-    textbox.see(tk.END)
-    textbox.configure(state='disabled')
 
 def submit(root, entries, input_question, output_textbox):
     Uvalues = {}
@@ -256,7 +238,6 @@ def startTkinter():
     input_question.pack(ipady=10)
     add_placeholder(input_question, "Enter your question for Gemini here...")
 
-<<<<<<< Updated upstream
     def submit():
         Uvalues = {}
         for key in entries:
@@ -298,8 +279,6 @@ def startTkinter():
     label_main = tk.Label(content_frame, textvariable=label_m_text, **label_style)
     label_main.pack(pady=(20, 10), anchor='w')
 
-=======
->>>>>>> Stashed changes
     # OUTPUT TEXT BOX
     output_textbox = scrolledtext.ScrolledText(
         content_frame,
