@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 import numpy as np
-import tkintertest as tktest
+import with_ai_window as tktest
 from logging_system import get_logger
 logger = get_logger(__name__)
 

@@ -8,7 +8,7 @@ import startup as startup_module
 import linearmodel as mod
 import api_check as apic
 import tkinter_helpers as tkh
-import tkintertest as tktest
+import with_ai_window as tktest
 import globalvalues as gv
 
 def use_api_key(root, api_key_entry):

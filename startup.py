@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 import linearmodel as mod
 import api_check_UI as apic_ui 
 import api_check as apic
-import tkintertest as tktest
+import with_ai_window as withai
 import without_ai_window as waiw
 
 def start_with_ai(root):
@@ -24,7 +24,7 @@ def start_with_ai(root):
         mod.train()
         messagebox.showinfo("Success", "✅ Your saved API key is valid and working.")
         logger.info("Valid API key found in .env file, launching main UI.")
-        tktest.startTkinter()
+        withai.startTkinter()
     else:
         logger.warning("No valid API key found, launching API key entry UI.")
         apic_ui.start()
