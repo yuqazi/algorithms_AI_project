@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
+from logging_system import get_logger
+
+logger = get_logger(__name__)
 
 
 def save_results(df_results, threshold, filename="SOH_Predictions_Excel.xlsx"):
@@ -29,7 +32,10 @@ def save_results(df_results, threshold, filename="SOH_Predictions_Excel.xlsx"):
     if filename:
         try:
             df_results.to_excel(filename, index=False)
+            logger.info(f"Excel file saved successfully as: {filename}")
         except Exception as e:
-            print(f"An error occurred while saving the file: {e}")
+            logger.error(f"Failed to save Excel file: {e}")
+    else:
+        logger.info("Save operation cancelled by user.")
 
     root.destroy()

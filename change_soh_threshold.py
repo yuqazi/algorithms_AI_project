@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
+from logging_system import get_logger
+
+logger = get_logger(__name__)
 
 import tkinter_helpers as tkh
 import globalvalues as gv
@@ -7,7 +10,9 @@ import linearmodel as mod
 
 def change_soh(window, new_soh, label_text, text_widget):
     try:
+        logger.info(f"Attempting to change SOH threshold to {new_soh}.")
         if(float(new_soh) < 0 or float(new_soh) > 1):
+            logger.warning("SOH threshold change failed; value out of bounds (0-1).")
             tk.messagebox.showerror("Warning", "❌ SOH must be between 0 and 1.")
             return
         new_soh_value = float(new_soh)
@@ -18,6 +23,7 @@ def change_soh(window, new_soh, label_text, text_widget):
         tk.messagebox.showinfo("Success", f"✅ SOH threshold changed to {new_soh_value}.")
         mod.train()
     except ValueError:
+        logger.error("Invalid input for SOH threshold; must be a numeric value.")
         text_widget.delete("0", "end")
         tk.messagebox.showerror("Error", "❌ Invalid input. Please enter a numeric value.")
 
@@ -52,6 +58,8 @@ def change_soh_start(self):
     tk.submit_button.pack(pady=15)
 
     tkh.center_window(model_win, 400, 200)
+    
+    logger.info("Opened Change SOH Threshold window.")
 
     model_win.grab_set()
     self.wait_window(model_win)

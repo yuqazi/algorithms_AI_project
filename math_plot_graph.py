@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from tkinter import Tk, filedialog
+from logging_system import get_logger
+
+logger = get_logger(__name__)
 
 # 1. Core plotting function
 def create_soh_plot(y_test, y_pred):
@@ -24,6 +27,7 @@ def create_soh_plot(y_test, y_pred):
     plt.legend()
     plt.grid(True, linestyle=':', alpha=0.7)
     plt.tight_layout() # Adjust layout to prevent labels from overlapping
+    logger.info("SOH plot created successfully.")
     return plt
 
 # 2. Function to show the plot to the user
@@ -31,6 +35,7 @@ def show_soh_plot(plt):
     """
     Displays the currently active Matplotlib figure.
     """
+    logger.info("Displaying SOH plot to user.")
     plt.show()
 
 # 3. Function to save the plot as a file with a custom name
@@ -62,7 +67,10 @@ def save_soh_plot(plt, filename="actual_vs_predicted_soh.png"):
     if filename:
         try:
             plt.savefig(filename, dpi=300, bbox_inches='tight')
+            logger.info(f"Plot saved successfully as: {filename}")
         except Exception as e:
-            print(f"An error occurred while saving the file: {e}")
+            logger.error(f"Failed to save plot: {e}")
+    else:
+        logger.info("Save operation cancelled by user.")
 
     root.destroy()

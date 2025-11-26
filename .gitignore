@@ -3,3 +3,4 @@ actual*
 SOH*
 venv/
 .env
+application.log

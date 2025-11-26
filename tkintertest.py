@@ -4,7 +4,6 @@ from tkinter import scrolledtext
 from tkinter import filedialog
 from tkinter import messagebox
 
-
 import startup as startup_module
 import geminiMessage as gem
 import linearmodel as mod
@@ -113,7 +112,6 @@ def new_chat_session(textbox):
     messagebox.showwarning("New Chat Session", "New Gemini chat session started.")
     initalizing_print(textbox)
     textbox.see(tk.END)
-
 
 def add_placeholder(entry, placeholder):
     entry.insert(0, placeholder)

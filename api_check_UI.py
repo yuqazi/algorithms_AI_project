@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
+from logging_system import get_logger
+
+logger = get_logger(__name__)
 
 import startup as startup_module
 import linearmodel as mod
@@ -9,38 +12,46 @@ import tkintertest as tktest
 import globalvalues as gv
 
 def use_api_key(root, api_key_entry):
+    logger.info("Use API Key button pressed. Validating API key.")
     api_key = api_key_entry.get().strip()
     if not api_key:
+        logger.warning("No API key entered.")
         messagebox.showwarning("Input Error", "❌ Please enter an API key.")
         return
     
     valid = apic.check_api_key_validity(api_key)
     if valid:
+        logger.info("Valid API key entered. Proceeding to train model and launch main AI UI.")
         mod.train()
         messagebox.showinfo("Success", "✅ The API key is valid and working.")
         gv.change_key(api_key)
         root.destroy()
         tktest.startTkinter()
     else:
+        logger.error("Invalid API key entered.")
         messagebox.showerror("Invalid Key", "❌ The API key is invalid or has issues.")
 
 def save_api_key(root, api_key_entry):
+    logger.info("Save API Key button pressed. Validating and saving API key.")
     api_key = api_key_entry.get().strip()
     if not api_key:
+        logger.warning("No API key entered for saving.")
         messagebox.showwarning("Input Error", "❌ Please enter an API key.")
         return
     
     valid = apic.check_api_key_validity(api_key)
     if valid:
+        logger.info("Valid API key entered. Saving to .env file.")
         with open(".env", "w") as f:
             f.write("GEMINI_API_KEY=" + api_key + "\n")
         messagebox.showinfo("Saved", "✅ The API key has been saved successfully.")
     else:
+        logger.error("Invalid API key entered for saving.")
         messagebox.showerror("Invalid Key", "❌ The API key is invalid or has issues.")
 
 def cancel(root):
+    logger.info("Cancel button pressed. Returning to startup module.")
     root.destroy()
-    # Call the main function in the startup module to re-launch the startup page
     startup_module.main()
 
 def start():
@@ -86,4 +97,5 @@ def start():
     submit_button_cancel.pack(padx=15, pady=10)
 
     tkh.center_window(root, 600, 250)
+    logger.info("API Key Entry window launched successfully.")
     root.mainloop()

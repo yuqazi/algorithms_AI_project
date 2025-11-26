@@ -6,6 +6,8 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 import numpy as np
 import tkintertest as tktest
+from logging_system import get_logger
+logger = get_logger(__name__)
 
 import globalvalues as gv
 import save_to_excel as ste
@@ -19,6 +21,7 @@ def load_data(file_path):
     df = pd.read_excel(file_path)
     X = df.iloc[:, 8:29]     # SOE + U1–U21
     y = df["SOH"]
+    logger.info(f"Data loaded from {file_path} with {df.shape[0]} records.")
     return df, X, y
 
 
@@ -37,7 +40,7 @@ def train_hybrid_models(X, y):
         random_state=42
     )
     rf.fit(X, y)
-
+    logger.info("Hybrid models trained: Linear Regression and Random Forest.")
     return lin_reg, rf
 
 
@@ -52,7 +55,7 @@ def evaluate_model(model, X_test, y_test):
         "MSE": mean_squared_error(y_test, y_pred),
         "MAE": mean_absolute_error(y_test, y_pred),
     }
-
+    logger.info(f"Model evaluation metrics: {metrics}")
     return y_pred, metrics
 
 
@@ -74,7 +77,7 @@ def compute_feature_importance(model, feature_names):
 
     coefficients = coefficients.sort_values("AbsCoefficient", ascending=False)
     coefficients = coefficients.drop(columns=["AbsCoefficient"]).reset_index(drop=True)
-
+    logger.info("Computed feature importance based on linear regression coefficients.")
     return coefficients
 
 
@@ -86,6 +89,7 @@ def prepare_input_mean(df_partial, expected_features, X_train):
     for col in expected_features:
         if col not in df_full.columns:
             df_full[col] = X_train[col].mean()
+    logger.info("Prepared input data by filling missing features with training means.")
     return df_full[expected_features]
 
 
@@ -96,6 +100,7 @@ def choose_model(user_df, expected_features, lin_reg, rf, threshold=0.9):
     
     # If ANY NaN exists in user input → RandomForest handles missing values better
     if user_df.isna().any().any():
+        logger.info("Choosing RandomForest model due to presence of missing values in input.")
         gv.MODEL_CHOICE = "Choosing RandomForest (missing values detected)"
         return rf
 
@@ -104,9 +109,11 @@ def choose_model(user_df, expected_features, lin_reg, rf, threshold=0.9):
     total = len(expected_features)
 
     if supplied >= total * threshold:
+        logger.info("Choosing LinearRegression model due to sufficient features supplied.")
         gv.MODEL_CHOICE = "Choosing LinearRegression (enough features supplied)"
         return lin_reg
     else:
+        logger.info("Choosing RandomForest model due to insufficient features supplied.")
         gv.MODEL_CHOICE = "Choosing RandomForest (not enough features supplied)"
         return rf
 
@@ -120,6 +127,7 @@ def hybrid_predict(df_partial, expected_features, X_train, lin_reg, rf):
     df_partial = df_partial.replace("", np.nan).infer_objects(copy=False)
     model = choose_model(df_partial, expected_features, lin_reg, rf)
     prepared = prepare_input_mean(df_partial, expected_features, X_train)
+    logger.info("Running hybrid prediction on prepared input data.")
     return model.predict(prepared)[0]
 
 
@@ -169,6 +177,7 @@ def train():
     gv.INITALIZING_TEXT += str("\nSample predictions:")
     gv.INITALIZING_TEXT += str(df_results.head())
 
+    logger.info("Training complete. Storing models and data in global values.")
     gv.change_exp_features(expected_features)
     gv.change_x_train(X_train)
     gv.change_lin_reg_model(lin_reg_model)

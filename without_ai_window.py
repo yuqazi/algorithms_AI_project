@@ -3,6 +3,9 @@ from tkinter import scrolledtext
 from tkinter import filedialog
 from tkinter import messagebox
 import pandas as pd
+from logging_system import get_logger
+
+logger = get_logger(__name__)
 
 import linearmodel as mod
 import tkinter_helpers as tkh
@@ -13,24 +16,29 @@ import math_plot_graph as mpg
 import save_to_excel as ste
 
 def run_pred(textbox, entries):
+    logger.info("Run button pressed. Running prediction with user input values.")
     Uvalues = {}
     for key in entries:
         value = entries[key].get()
         Uvalues[key] = value
-
-    prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
-    line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
-    line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
-    line3 = gv.MODEL_CHOICE + "\n"
-
-    textbox.configure(state='normal')
-    textbox.insert(tk.END, line3)
-    textbox.insert(tk.END, line1)
-    textbox.insert(tk.END, line2 + "\n" + "-"*90 + "\n")
-    textbox.see(tk.END)
-    textbox.configure(state='disabled')
+    try:
+        logger.debug(f"Input U values: {Uvalues}")
+        prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
+        line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
+        line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
+        line3 = gv.MODEL_CHOICE + "\n"
+        textbox.configure(state='normal')
+        textbox.insert(tk.END, line3)
+        textbox.insert(tk.END, line1)
+        textbox.insert(tk.END, line2 + "\n" + "-"*90 + "\n")
+        textbox.see(tk.END)
+        textbox.configure(state='disabled')
+    except ValueError:
+        logger.error("Invalid input values provided for U1-U21. Cannot run prediction.")
+        messagebox.showerror("Error", "❌ Invalid input. Please ensure all U values are numeric.")
 
 def initalizing_print(textbox):
+    logger.info("Printing initializing text and current SOH threshold to output textbox.")
     textbox.configure(state='normal')
     textbox.insert(tk.END, "-"*90 + "\n")
     textbox.insert(tk.END, gv.INITALIZING_TEXT + "\n")
@@ -43,22 +51,27 @@ def initalizing_print(textbox):
     gv.INITALIZING_TEXT = ""
 
 def change_soh(master, textbox, label_text):
+    logger.info("Change SOH Threshold button pressed. Opening change SOH threshold window.")
     csoth.change_soh_start(master)
     label_text.set(f"Results with SOH threshold: {gv.SOH}")
     initalizing_print(textbox)
 
 def open_graph():
+    logger.info("Open Graph button pressed. Displaying SOH prediction graph.")
     plt = mpg.create_soh_plot(gv.Y_TEST, gv.Y_PRED)
     mpg.show_soh_plot(plt)
 
 def save_graph():
+    logger.info("Save Graph button pressed. Saving SOH prediction graph.")
     plt = mpg.create_soh_plot(gv.Y_TEST, gv.Y_PRED)
     mpg.save_soh_plot(plt)
 
 def save_excel_sheet():
+    logger.info("Save Excel Sheet button pressed. Saving prediction results to Excel.")
     ste.save_results(gv.df_results, gv.SOH)
 
 def save_runs(textbox):
+    logger.info("Save Runs button pressed. Saving output textbox content to a text file.")
     content = textbox.get("1.0", "end-1c")
     try:
         # options for the save dialog
@@ -79,10 +92,9 @@ def save_runs(textbox):
         if filepath:
             with open(filepath, 'w', encoding='utf-8') as file:
                 file.write(content)
-            print(f"Content successfully saved to: {filepath}")
-            messagebox.showinfo("Success", f"Content saved to:\n{filepath}")
+            logger.info(f"Content successfully saved to: {filepath}")
         else:
-            print("Save operation cancelled by user.")
+            logger.info("Save operation cancelled by user.")
     
     # except block to catch any file operation errors.
     except Exception as e:
@@ -90,6 +102,7 @@ def save_runs(textbox):
         messagebox.showerror("Error", f"Failed to save content: {e}")
 
 def return_action(root):
+    logger.info("Return to Startup button pressed. Closing current window and returning to startup.")
     root.destroy()
     startup_module.main()
 
@@ -214,4 +227,5 @@ def startTkinter():
     ).pack(pady=10)
 
     tkh.center_window(root, 960, 750)
+    logger.info("Without AI application window launched successfully.")
     root.mainloop()
