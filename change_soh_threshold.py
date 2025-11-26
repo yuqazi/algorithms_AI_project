@@ -51,7 +51,7 @@ def change_soh_start(self):
     tk.submit_button = tk.Button(
         model_win,
         text="Submit",
-        command=lambda: change_soh(model_win, soh_entry.get(), label_text, soh_entry),
+        command=lambda: change_soh(model_win, soh_entry.get(), soh_entry),
         **button_style
     )
     tk.submit_button.pack(pady=15)
