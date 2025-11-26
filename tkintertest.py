@@ -30,24 +30,45 @@ def gemini_output(textbox, gemini_reply, input_question):
     textbox.see(tk.END)
     textbox.configure(state='disabled')
 
-def run_pred(textbox, entries):
+
+def submit(root, entries, input_question, output_textbox):
     Uvalues = {}
     for key in entries:
-        value = entries[key].get()
-        Uvalues[key] = value
+        Uvalues[key] = entries[key].get()
 
-    prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
-    line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
-    line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
-    line3 = gv.MODEL_CHOICE + "\n"
+    question = input_question.get()
+    if question == "" or question == "Enter your question for Gemini here...":
+        messagebox.showwarning("Input Error", "Please enter a question for Gemini.")
+        return
+    prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]),
+                                    gv.EXP_FEATURES,
+                                    gv.X_TRAIN,
+                                    gv.LIN_REG_MODEL,
+                                    gv.RF_MODEL)
 
-    textbox.configure(state='normal')
-    textbox.insert(tk.END,"\n" + "-"*90 + "\n")
-    textbox.insert(tk.END, line3)
-    textbox.insert(tk.END, line1)
-    textbox.insert(tk.END, line2 + "\n" + "-"*90 + "\n")
-    textbox.see(tk.END)
-    textbox.configure(state='disabled')
+    print(f"\nPredicted SOH from UI Input: {prediction:.4f}")
+    print("Battery Classification:", "Healthy" if prediction >= gv.SOH else "Unhealthy")
+
+    gemini_initial = (
+        "Respond only in plain, unformatted text. Do not use markdown.\n"
+        "Based on the provided battery cell voltages ({}), "
+        "our Data model predicted SOH: {:.4f}, which is {}. "
+        "Using the {} model, and {} as the healthy/unhealthy threshold.\n"
+        "Please use this for the following question."
+    ).format(
+        Uvalues,
+        prediction,
+        "Healthy" if prediction >= gv.SOH else "Unhealthy",
+        gv.MODEL_CHOICE,
+        gv.SOH
+    )
+
+    gemini_reply = gem.gemini_response(question, gemini_initial)
+    gemini_output(output_textbox, gemini_reply, input_question)
+    input_question.delete(0, tk.END)
+    input_question.selection_clear()
+    root.focus_set()
+
 
 def initalizing_print(textbox):
     textbox.configure(state='normal')
@@ -281,8 +302,8 @@ def startTkinter():
 
     tk.Button(
         button_column, 
-        text="Run", 
-        command=lambda: run_pred(output_textbox, entries),
+        text="Submit", 
+        command=lambda: submit(root, entries, input_question, output_textbox),
         **button_style
     ).pack(pady=10)
 
