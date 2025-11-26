@@ -8,7 +8,7 @@ import tkinter_helpers as tkh
 import globalvalues as gv
 import linearmodel as mod
 
-def change_soh(window, new_soh, label_text, text_widget):
+def change_soh(window, new_soh, text_widget):
     try:
         logger.info(f"Attempting to change SOH threshold to {new_soh}.")
         if(float(new_soh) < 0 or float(new_soh) > 1):
@@ -16,8 +16,7 @@ def change_soh(window, new_soh, label_text, text_widget):
             tk.messagebox.showerror("Warning", "❌ SOH must be between 0 and 1.")
             return
         new_soh_value = float(new_soh)
-        gv.change_soh(new_soh_value) 
-        # label_text.set(f"Current SOH Threshold: {gv.SOH}")       
+        gv.change_soh(new_soh_value)
         window.grab_release()
         window.destroy()
         tk.messagebox.showinfo("Success", f"✅ SOH threshold changed to {new_soh_value}.")

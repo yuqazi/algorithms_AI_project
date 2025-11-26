@@ -21,8 +21,11 @@ def run_pred(textbox, entries):
     outofbounds = False
     for key in entries:
         Uvalues[key] = entries[key].get()
-        # if float(Uvalues[key]) < 0:
-        #     outofbounds = True
+        try:
+            if float(Uvalues[key]) < 0:
+                outofbounds = True
+        except ValueError:
+            continue
     try:
         if not outofbounds:
             logger.debug(f"Input U values: {Uvalues}")
@@ -43,7 +46,7 @@ def run_pred(textbox, entries):
             textbox.configure(state='disabled')
         else:
             logger.warning("Input U values out of bounds. Cannot run prediction.")
-            messagebox.showerror("Warning", "❌ U values must be non-negative.")
+            messagebox.showwarning("Input Error", "❌ U values must be non-negative.")
     except ValueError:
         logger.error("Invalid input values provided for U1-U21. Cannot run prediction.")
         messagebox.showerror("Error", "❌ Invalid input. Please ensure all U values are numeric.")

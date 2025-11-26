@@ -43,8 +43,11 @@ def submit(root, entries, input_question, output_textbox):
     outofbounds = False
     for key in entries:
         Uvalues[key] = entries[key].get()
-        # if float(Uvalues[key]) < 0:
-        #     outofbounds = True
+        try:
+            if float(Uvalues[key]) < 0:
+                outofbounds = True
+        except ValueError:
+            continue
     try:
         if not outofbounds:    
             question = input_question.get()

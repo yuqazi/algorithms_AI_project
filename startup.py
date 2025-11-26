@@ -42,7 +42,6 @@ def clear_dot_env():
     logger.info("API key removed from .env file.")
     messagebox.showinfo("Removed", "The API key has been removed.")
 
-
 # The main function to launch the startup window
 def main():
     root = tk.Tk()
