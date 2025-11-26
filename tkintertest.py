@@ -50,6 +50,45 @@ def run_pred(textbox, entries):
     textbox.see(tk.END)
     textbox.configure(state='disabled')
 
+def submit(root, entries, input_question, output_textbox):
+    Uvalues = {}
+    for key in entries:
+        Uvalues[key] = entries[key].get()
+
+    question = input_question.get()
+    if question == "" or question == "Enter your question for Gemini here...":
+        messagebox.showwarning("Input Error", "Please enter a question for Gemini.")
+        return
+    prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]),
+                                    gv.EXP_FEATURES,
+                                    gv.X_TRAIN,
+                                    gv.LIN_REG_MODEL,
+                                    gv.RF_MODEL)
+
+    print(f"\nPredicted SOH from UI Input: {prediction:.4f}")
+    print("Battery Classification:", "Healthy" if prediction >= gv.SOH else "Unhealthy")
+
+    gemini_initial = (
+        "Respond only in plain, unformatted text. Do not use markdown.\n"
+        "Based on the provided battery cell voltages ({}), "
+        "our Data model predicted SOH: {:.4f}, which is {}. "
+        "Using the {} model, and {} as the healthy/unhealthy threshold.\n"
+        "Please use this for the following question."
+    ).format(
+        Uvalues,
+        prediction,
+        "Healthy" if prediction >= gv.SOH else "Unhealthy",
+        gv.MODEL_CHOICE,
+        gv.SOH
+    )
+
+    gemini_reply = gem.gemini_response(question, gemini_initial)
+    gemini_output(output_textbox, gemini_reply, input_question)
+    input_question.delete(0, tk.END)
+    input_question.selection_clear()
+    root.focus_set()
+
+
 def initalizing_print(textbox):
     textbox.configure(state='normal')
     textbox.insert(tk.END, "-"*90 + "\n")
@@ -217,6 +256,7 @@ def startTkinter():
     input_question.pack(ipady=10)
     add_placeholder(input_question, "Enter your question for Gemini here...")
 
+<<<<<<< Updated upstream
     def submit():
         Uvalues = {}
         for key in entries:
@@ -258,6 +298,8 @@ def startTkinter():
     label_main = tk.Label(content_frame, textvariable=label_m_text, **label_style)
     label_main.pack(pady=(20, 10), anchor='w')
 
+=======
+>>>>>>> Stashed changes
     # OUTPUT TEXT BOX
     output_textbox = scrolledtext.ScrolledText(
         content_frame,
@@ -283,8 +325,8 @@ def startTkinter():
 
     tk.Button(
         button_column, 
-        text="Run", 
-        command=lambda: run_pred(output_textbox, entries),
+        text="Submit", 
+        command=lambda: submit(root, entries, input_question, output_textbox),
         **button_style
     ).pack(pady=10)
 
