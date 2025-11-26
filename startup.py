@@ -41,6 +41,8 @@ def main():
     root.configure(bg="#111111")
 
     label_style = tkh.label_style
+    button_style = tkh.button_style
+    cancel_button_style = tkh.button_style_negative
 
     tk.Label(root, text="Welcome to Our Thing!", **label_style).pack(pady=10)
 
@@ -54,12 +56,14 @@ def main():
         start_with_frame,
         text="Start with AI",
         command=lambda: start_with_ai(root),
+        **button_style
     )
 
     start_without_button = tk.Button(
         start_without_frame,
         text="Start without AI",
         command=lambda: start_without_ai(root),
+        **button_style
     )
 
     start_with_button.grid(row=0, column=1, padx=15)
@@ -69,10 +73,11 @@ def main():
         root,
         text="Delete Saved API Key",
         command=lambda: clear_dot_env(),
+        **cancel_button_style
     )
     delete_dot_env_button.pack(pady=30)
 
-    tkh.center_window(root, 400, 250)
+    tkh.center_window(root, 400, 320)
     root.mainloop()
 
 # Ensure the app runs when the file is executed directly

@@ -31,7 +31,6 @@ def show_soh_plot(plt):
     """
     Displays the currently active Matplotlib figure.
     """
-    print("Displaying the plot...")
     plt.show()
 
 # 3. Function to save the plot as a file with a custom name
@@ -62,12 +61,8 @@ def save_soh_plot(plt, filename="actual_vs_predicted_soh.png"):
 
     if filename:
         try:
-            print(f"Saving plot to file: {filename}")
             plt.savefig(filename, dpi=300, bbox_inches='tight')
-            print("Save complete.")
         except Exception as e:
             print(f"An error occurred while saving the file: {e}")
-    else:
-        print("Save cancelled by user.")
 
     root.destroy()

@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 
-
 import startup as startup_module
 import linearmodel as mod
 import api_check as apic
@@ -51,6 +50,8 @@ def start():
     
     label_style = tkh.label_style
     entry_style = tkh.entry_style_large
+    button_style = tkh.button_style
+    cancel_button_style = tkh.button_style_negative
 
     tk.Label(root, text="Enter your API Key:", **label_style).pack(pady=10)
     api_key_entry = tk.Entry(root, **entry_style)
@@ -62,7 +63,8 @@ def start():
     submit_button_use = tk.Button(
         button_frame,
         text="Use", 
-        command=lambda: use_api_key(root, api_key_entry)
+        command=lambda: use_api_key(root, api_key_entry),
+        **button_style
     )
 
     submit_button_use.grid(row=0, column=0, padx=15)
@@ -70,16 +72,18 @@ def start():
     submit_button_save = tk.Button(
         button_frame,
         text="Save", 
-        command=lambda: save_api_key(root, api_key_entry)
+        command=lambda: save_api_key(root, api_key_entry), 
+        **button_style
     )
 
     submit_button_save.grid(row=0, column=1, padx=15)
 
     submit_button_cancel = tk.Button(
         text="Cancel", 
-        command=lambda: cancel(root)
+        command=lambda: cancel(root),
+        **cancel_button_style
     )
     submit_button_cancel.pack(padx=15, pady=10)
 
-    tkh.center_window(root, 600, 200)
+    tkh.center_window(root, 600, 250)
     root.mainloop()

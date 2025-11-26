@@ -162,6 +162,7 @@ def startTkinter():
 
     # Consistent Button styling
     button_style = tkh.button_style
+    cancel_button_style = tkh.button_style_negative
 
     tk.Button(
         button_column, 
@@ -174,13 +175,6 @@ def startTkinter():
         button_column, 
         text="Change SOH Threshold", 
         command=lambda: change_soh(root, output_textbox, label_m_text),
-        **button_style
-    ).pack(pady=10)
-
-    tk.Button(
-        button_column, 
-        text="Return to Startup", 
-        command=lambda: return_action(root),
         **button_style
     ).pack(pady=10)
 
@@ -210,6 +204,13 @@ def startTkinter():
         text="Save Runs", 
         command=lambda: save_runs(output_textbox),
         **button_style
+    ).pack(pady=10)
+
+    tk.Button(
+        button_column, 
+        text="Return to Startup", 
+        command=lambda: return_action(root),
+        **cancel_button_style
     ).pack(pady=10)
 
     tkh.center_window(root, 960, 750)

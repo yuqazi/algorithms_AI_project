@@ -99,16 +99,12 @@ def save_runs(textbox):
         if filepath:
             with open(filepath, 'w', encoding='utf-8') as file:
                 file.write(content)
-            print(f"Content successfully saved to: {filepath}")
-            messagebox.showinfo("Success", f"Content saved to:\n{filepath}")
         else:
             print("Save operation cancelled by user.")
     
     # except block to catch any file operation errors.
     except Exception as e:
         print(f"An error occurred during save operation: {e}")
-        messagebox.showerror("Error", f"Failed to save content: {e}")
-
 
 def new_chat_session(textbox):
     gv.CLIENT, gv.CHAT = gem.start_gemini()
@@ -256,6 +252,12 @@ def startTkinter():
     submit_btn = tk.Button(content_frame, text="Submit", width=15, command=submit)
     submit_btn.pack(pady=20)
 
+    label_m_text = tk.StringVar()
+    label_m_text.set(f"Results with SOH threshold: {gv.SOH}")
+    # Results Label (packed to the left with anchor='w')
+    label_main = tk.Label(content_frame, textvariable=label_m_text, **label_style)
+    label_main.pack(pady=(20, 10), anchor='w')
+
     # OUTPUT TEXT BOX
     output_textbox = scrolledtext.ScrolledText(
         content_frame,
@@ -272,17 +274,12 @@ def startTkinter():
     initalizing_print(output_textbox)
     output_textbox.configure(state='disabled')
 
-    label_m_text = tk.StringVar()
-    label_m_text.set(f"Results with SOH threshold: {gv.SOH}")
-    # Results Label (packed to the left with anchor='w')
-    label_main = tk.Label(content_frame, textvariable=label_m_text, **label_style)
-    label_main.pack(pady=(20, 10), anchor='w')
-
     # RIGHT-SIDE BUTTON COLUMN (scrolls too)
     button_column = tk.Frame(main_container, bg="#111111")
     button_column.grid(row=0, column=1, sticky="n", pady=10)
 
     button_style = tkh.button_style
+    cancel_button_style = tkh.button_style_negative
 
     tk.Button(
         button_column, 
@@ -295,13 +292,6 @@ def startTkinter():
         button_column, 
         text="Change SOH Threshold", 
         command=lambda: change_soh(root, output_textbox, label_m_text),
-        **button_style
-    ).pack(pady=10)
-
-    tk.Button(
-        button_column, 
-        text="Return to Startup", 
-        command=lambda: return_action(root),
         **button_style
     ).pack(pady=10)
 
@@ -340,8 +330,14 @@ def startTkinter():
         **button_style
     ).pack(pady=10)
 
-    # Center window
-    tkh.center_window(root, 800, 500)
+    tk.Button(
+        button_column, 
+        text="Return to Startup", 
+        command=lambda: return_action(root),
+        **cancel_button_style
+    ).pack(pady=10)
 
+    # Center window
+    tkh.center_window(root, 960, 800)
     root.mainloop()
 

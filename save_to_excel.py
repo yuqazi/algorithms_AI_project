@@ -28,12 +28,8 @@ def save_results(df_results, threshold, filename="SOH_Predictions_Excel.xlsx"):
 
     if filename:
         try:
-            print(f"Saving Excel file to: {filename}")
             df_results.to_excel(filename, index=False)
-            print("Save complete.")
         except Exception as e:
             print(f"An error occurred while saving the file: {e}")
-    else:
-        print("Save cancelled by user.")
 
     root.destroy()
