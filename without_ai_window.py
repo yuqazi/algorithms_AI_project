@@ -175,7 +175,8 @@ def startTkinter():
         insertbackground="#FFFFFF", 
         borderwidth=0,
         relief="flat",
-        font=('Helvetica', 10)
+        font=('Helvetica', 10),
+        wrap=tk.WORD
     )
     output_textbox.pack(pady=10, padx=0, fill='x', anchor='w') 
     initalizing_print(output_textbox)
