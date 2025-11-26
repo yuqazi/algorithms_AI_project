@@ -183,28 +183,3 @@ def train():
     gv.change_lin_reg_model(lin_reg_model)
     gv.change_rf_model(rf_model)
     gv.training_results(df_results)
-
-
-r'''
-How to set up virtual environment:
-python -m venv venv
-^only needed to make venv once^
-
---.\venv\Scripts\Activate.ps1
-
-pip install google-genai python-dotenv
-pip install pandas scikit-learn matplotlib openpyxl
-^only needed to install packages once^
-
-To run:
-python linearmodel.py
-Make sure to create a .env file with your GEMINI_API_KEY in the same directory as all the other files:
-deactivate venv when done with:
-
---.\venv\Scripts\Deactivate.ps1
-or just deactivate
-
-'''
-# ENTRY POINT
-if __name__ == "__main__":
-    train()
