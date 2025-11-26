@@ -5,9 +5,6 @@ from logging_system import get_logger
 logger = get_logger(__name__)
 
 def save_results(df_results, threshold, filename="SOH_Predictions_Excel.xlsx"):
-    tempfilename = f"SOH_Predictions_{threshold}_threshold.xlsx"
-    df_results.to_excel(filename, index=False)
-
     """
     Opens a native system file save dialog for the user to select the
     location and filename, and saves the currently active Matplotlib figure.
@@ -20,6 +17,8 @@ def save_results(df_results, threshold, filename="SOH_Predictions_Excel.xlsx"):
     file_types = [
         ('Excel', '*.xlsx'),
     ]
+    
+    tempfilename = f"SOH_Predictions_{threshold}_threshold.xlsx"
     
     filename = filedialog.asksaveasfilename(
         defaultextension=".xlsx",
