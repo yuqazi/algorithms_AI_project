@@ -3,6 +3,9 @@ import pandas as pd
 from tkinter import scrolledtext
 from tkinter import filedialog
 from tkinter import messagebox
+from logging_system import get_logger
+
+logger = get_logger(__name__)
 
 import startup as startup_module
 import geminiMessage as gem
@@ -14,13 +17,16 @@ import math_plot_graph as mpg
 import save_to_excel as ste
 
 def return_action(root):
+    logger.info("Return to Startup button pressed. Returning to startup window.")
     root.destroy()
     startup_module.main()
 
 def gemini_output(textbox, gemini_reply, input_question):
 
     line1 = f"\nGemini's Response to: '{input_question.get()}'\n"
+    logger.info(f"Gemini's Response to: '{input_question.get()}'")
     line2 = gemini_reply + "\n"
+    logger.info(gemini_reply)
 
     textbox.configure(state='normal')
     textbox.insert(tk.END,"\n" + "-"*90 + "\n")
@@ -29,6 +35,7 @@ def gemini_output(textbox, gemini_reply, input_question):
     textbox.insert(tk.END,"\n" + "-"*90 + "\n")
     textbox.see(tk.END)
     textbox.configure(state='disabled')
+    logger.info("Gemini response displayed in output textbox.")
 
 
 def submit(root, entries, input_question, output_textbox):
@@ -46,9 +53,6 @@ def submit(root, entries, input_question, output_textbox):
                                     gv.LIN_REG_MODEL,
                                     gv.RF_MODEL)
 
-    print(f"\nPredicted SOH from UI Input: {prediction:.4f}")
-    print("Battery Classification:", "Healthy" if prediction >= gv.SOH else "Unhealthy")
-
     gemini_initial = (
         "Respond only in plain, unformatted text. Do not use markdown.\n"
         "Based on the provided battery cell voltages ({}), "
@@ -63,6 +67,8 @@ def submit(root, entries, input_question, output_textbox):
         gv.SOH
     )
 
+    logger.info("Sending question to Gemini AI.")
+
     gemini_reply = gem.gemini_response(question, gemini_initial)
     gemini_output(output_textbox, gemini_reply, input_question)
     input_question.delete(0, tk.END)
@@ -71,6 +77,7 @@ def submit(root, entries, input_question, output_textbox):
 
 
 def initalizing_print(textbox):
+    logger.info("Printing initializing text and current SOH threshold to output textbox.")
     textbox.configure(state='normal')
     textbox.insert(tk.END, "-"*90 + "\n")
     textbox.insert(tk.END, gv.INITALIZING_TEXT + "\n")
@@ -83,22 +90,27 @@ def initalizing_print(textbox):
     gv.INITALIZING_TEXT = ""
 
 def change_soh(master, textbox, label_text):
+    logger.info("Change SOH Threshold button pressed. Opening change SOH threshold window.")
     csoth.change_soh_start(master)
     label_text.set(f"Results with SOH threshold: {gv.SOH}")
     initalizing_print(textbox)
 
 def open_graph():
+    logger.info("Open Graph button pressed. Displaying SOH prediction graph.")
     plt = mpg.create_soh_plot(gv.Y_TEST, gv.Y_PRED)
     mpg.show_soh_plot(plt)
 
 def save_graph():
+    logger.info("Save Graph button pressed. Saving SOH prediction graph.")
     plt = mpg.create_soh_plot(gv.Y_TEST, gv.Y_PRED)
     mpg.save_soh_plot(plt)
 
 def save_excel_sheet():
+    logger.info("Save Excel Sheet button pressed. Saving prediction results to Excel.")
     ste.save_results(gv.df_results, gv.SOH)
 
 def save_runs(textbox):
+    logger.info("Save Runs button pressed. Saving output textbox content to a text file.")
     content = textbox.get("1.0", "end-1c")
     try:
         # options for the save dialog
@@ -119,12 +131,14 @@ def save_runs(textbox):
         if filepath:
             with open(filepath, 'w', encoding='utf-8') as file:
                 file.write(content)
+            logger.info(f"Content successfully saved to: {filepath}")
         else:
-            print("Save operation cancelled by user.")
+            logger.info("Save operation cancelled by user.")
     
     # except block to catch any file operation errors.
     except Exception as e:
-        print(f"An error occurred during save operation: {e}")
+        logger.error(f"Failed to save content: {e}")
+        messagebox.showerror("Error", f"Failed to save content: {e}")
 
 def new_chat_session(textbox):
     gv.CLIENT, gv.CHAT = gem.start_gemini()
@@ -133,6 +147,7 @@ def new_chat_session(textbox):
     messagebox.showwarning("New Chat Session", "New Gemini chat session started.")
     initalizing_print(textbox)
     textbox.see(tk.END)
+    logger.info("New Gemini chat session started and output textbox reset.")
 
 def add_placeholder(entry, placeholder):
     entry.insert(0, placeholder)
@@ -236,41 +251,6 @@ def startTkinter():
     input_question.pack(ipady=10)
     add_placeholder(input_question, "Enter your question for Gemini here...")
 
-    def submit():
-        Uvalues = {}
-        for key in entries:
-            Uvalues[key] = entries[key].get()
-
-        question = input_question.get()
-        if question == "" or question == "Enter your question for Gemini here...":
-            messagebox.showwarning("Input Error", "Please enter a question for Gemini.")
-            return
-        prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]),
-                                        gv.EXP_FEATURES,
-                                        gv.X_TRAIN,
-                                        gv.LIN_REG_MODEL,
-                                        gv.RF_MODEL)
-
-        print(f"\nPredicted SOH from UI Input: {prediction:.4f}")
-        print("Battery Classification:", "Healthy" if prediction >= gv.SOH else "Unhealthy")
-
-        gemini_initial = (
-            "Respond only in plain, unformatted text. Do not use markdown.\n"
-            "Based on the provided battery cell voltages ({}), "
-            "our Data model predicted SOH: {:.4f}, which is {}. "
-            "Please use this for the following question."
-        ).format(
-            Uvalues,
-            prediction,
-            "Healthy" if prediction >= gv.SOH else "Unhealthy"
-        )
-
-        gemini_reply = gem.gemini_response(question, gemini_initial)
-        gemini_output(output_textbox, gemini_reply, input_question)
-
-    submit_btn = tk.Button(content_frame, text="Submit", width=15, command=submit)
-    submit_btn.pack(pady=20)
-
     label_m_text = tk.StringVar()
     label_m_text.set(f"Results with SOH threshold: {gv.SOH}")
     # Results Label (packed to the left with anchor='w')
@@ -358,5 +338,5 @@ def startTkinter():
 
     # Center window
     tkh.center_window(root, 960, 800)
+    logger.info("Launching Tkinter GUI for Battery SOH Predictor with Gemini AI.")
     root.mainloop()
-

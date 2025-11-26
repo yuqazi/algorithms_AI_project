@@ -1,6 +1,9 @@
 from google import genai
 from dotenv import load_dotenv
+from logging_system import get_logger
 import os
+
+logger = get_logger(__name__)
 
 import globalvalues as gv
 
@@ -14,20 +17,17 @@ def start_gemini():
     if(gv.KEY != ""):
         client = genai.Client(api_key=gv.KEY)
         chat = client.chats.create(model="gemini-2.5-flash")
+        logger.info("Gemini client and chat session initialized successfully.")
         return client, chat
     else:
         load_dotenv(override=True)
         client = genai.Client()
         chat = client.chats.create(model="gemini-2.5-flash")
+        logger.info("Gemini client and chat session initialized successfully.")
         return client, chat
 
 
 def gemini_response(userquestion, initialmessage=None):
-    """
-    Sends a message to an EXISTING persistent chat session.
-    Keeps history. Does NOT recreate the chat.
-    """
-
     global chat
 
     if chat is None:
@@ -39,5 +39,7 @@ def gemini_response(userquestion, initialmessage=None):
 
     # User message
     response = chat.send_message(userquestion)
+
+    logger.info("Received response from Gemini AI.")
 
     return response.text

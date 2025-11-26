@@ -23,7 +23,12 @@ def run_pred(textbox, entries):
         Uvalues[key] = value
     try:
         logger.debug(f"Input U values: {Uvalues}")
-        prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), gv.EXP_FEATURES, gv.X_TRAIN, gv.LIN_REG_MODEL, gv.RF_MODEL)
+        prediction = mod.hybrid_predict(pd.DataFrame([Uvalues]), 
+                                        gv.EXP_FEATURES, 
+                                        gv.X_TRAIN, 
+                                        gv.LIN_REG_MODEL, 
+                                        gv.RF_MODEL)
+        
         line1 = f"\nPredicted SOH from UI Input: {prediction:.4f}\n"
         line2 = "Battery Classification: " + ("Healthy" if prediction >= gv.SOH else "Unhealthy") + "\n"
         line3 = gv.MODEL_CHOICE + "\n"
@@ -227,5 +232,5 @@ def startTkinter():
     ).pack(pady=10)
 
     tkh.center_window(root, 960, 750)
-    logger.info("Without AI application window launched successfully.")
+    logger.info("Launching Tkinter GUI for Battery SOH Predictor without Gemini AI.")
     root.mainloop()
