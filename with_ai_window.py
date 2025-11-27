@@ -163,22 +163,26 @@ def new_chat_session(textbox):
     textbox.see(tk.END)
     logger.info("New Gemini chat session started and output textbox reset.")
 
-def add_placeholder(entry, placeholder):
-    entry.insert(0, placeholder)
-    entry.config(fg="grey")
+def add_placeholder(entry, text):
+    placeholder_color = "#9ca3af"   # light gray (visible, not too strong)
+    normal_color = tkh.TEXT_COLOR   # white
+
+    entry.insert(0, text)
+    entry.config(fg=placeholder_color)
 
     def on_focus_in(event):
-        if entry.get() == placeholder:
+        if entry.get() == text:
             entry.delete(0, "end")
-            entry.config(fg="black")  # text color when typing
+            entry.config(fg=normal_color)
 
     def on_focus_out(event):
         if entry.get() == "":
-            entry.insert(0, placeholder)
-            entry.config(fg="grey")
+            entry.insert(0, text)
+            entry.config(fg=placeholder_color)
 
     entry.bind("<FocusIn>", on_focus_in)
     entry.bind("<FocusOut>", on_focus_out)
+
 
 def startTkinter():
     client, chat = gem.start_gemini()
