@@ -185,7 +185,8 @@ def startTkinter():
 
     root = tk.Tk()
     root.title("Battery SOH Predictor with Gemini AI")
-    root.configure(bg="#111111")
+    root.configure(bg=tkh.BG_COLOR)
+
 
     label_style = tkh.label_style
     entry_style = tkh.entry_style
@@ -249,11 +250,24 @@ def startTkinter():
     tk.Label(content_frame, text="Input Gemini Question", **label_style).pack(pady=10)
 
     # LARGE TEXT ENTRY
-    large_frame = tk.Frame(content_frame, bg="#111111")
+    large_frame = tk.Frame(content_frame, bg=tkh.BG_COLOR)
     large_frame.pack(pady=10)
 
-    input_question = tk.Entry(large_frame, width=80)
+    input_question = tk.Entry(
+    large_frame,
+    width=80,
+    bg=tkh.CARD_BG,
+    fg=tkh.TEXT_COLOR,
+    insertbackground=tkh.TEXT_COLOR,
+    bd=1,
+    relief="flat",
+    highlightthickness=1,
+    highlightbackground=tkh.BORDER_COLOR,
+    highlightcolor=tkh.ACCENT,
+    font=("Segoe UI", 10),
+)
     input_question.pack(ipady=10)
+
     add_placeholder(input_question, "Enter your question for Gemini here...")
 
     label_m_text = tk.StringVar()
@@ -264,17 +278,18 @@ def startTkinter():
 
     # OUTPUT TEXT BOX
     output_textbox = scrolledtext.ScrolledText(
-        content_frame,
-        width=80,
-        height=18,
-        bg="#333333",
-        fg="#FFFFFF",
-        insertbackground="#FFFFFF",
-        borderwidth=0,
-        relief="flat",
-        font=('Helvetica', 10),
-        wrap=tk.WORD
+    content_frame,
+    width=80,
+    height=18,
+    bg=tkh.CARD_BG,
+    fg=tkh.TEXT_COLOR,
+    insertbackground=tkh.TEXT_COLOR,
+    borderwidth=0,
+    relief="flat",
+    font=("Segoe UI", 10),
+    wrap=tk.WORD,
     )
+
     output_textbox.pack(pady=10, fill='x', anchor='w')
     initalizing_print(output_textbox)
     output_textbox.configure(state='disabled')
